@@ -15,15 +15,11 @@ const oldPointStructure = {
 function oldScrabbleScorer(word) {
 	word = word.toUpperCase();
 	let letterPoints = "";
- 
 	for (let i = 0; i < word.length; i++) {
- 
 	  for (const pointValue in oldPointStructure) {
- 
 		 if (oldPointStructure[pointValue].includes(word[i])) {
 			letterPoints += `Points for '${word[i]}': ${pointValue}\n`
 		 }
- 
 	  }
 	}
 	return letterPoints;
@@ -33,26 +29,102 @@ function oldScrabbleScorer(word) {
 // don't change the names or your program won't work as expected. //
 
 function initialPrompt() {
-   console.log("Let's play some scrabble! Enter a word:");
+   console.log(`\nLet's play some scrabble!\n`);
+   let answer = input.question("Enter a word to score: ");
+  //  console.log(oldScrabbleScorer(answer));
+  return answer;
 };
 
-let simpleScore;
+function simpleScore (word) {
+  let total = word.length;
+  return total;
+};
 
-let vowelBonusScore;
+function vowelBonusScore (word) {
+  let total = 0;
+  for (let i = 0; i < word.length; i++){
+    let vowel = 'AEIOU'
+    if (vowel.includes(word[i].toUpperCase())){
+      total += 3;
+    } else {
+      total += 1;
+    }
+  }
+  return total;
+};
 
-let scrabbleScore;
+function scrabbleScore(word, points) {
+  let total = 0;
+  for (let i = 0; i < word.length; i++){
+    total += points[word[i].toLowerCase()];
+  }
+  return total;
+};
 
-const scoringAlgorithms = [];
+const scoringAlgorithms = [
+  {
+    name: "Simple Score",
+    description: "Each letter is worth 1 point.",
+    scoringFunction: simpleScore
+  },
+  {
+    name: "Bonus Vowels",
+    description: "Vowels are 3 pts, consonants are 1 pt.",
+    scoringFunction: vowelBonusScore
+  },
+  {
+    name: "Scrabble",
+    description: "The traditional scoring algorithm.",
+    scoringFunction: oldScrabbleScorer
+  }
+];
 
-function scorerPrompt() {}
+// // Simple scoring
+// console.log("algorithm name: ", scoringAlgorithms[0].name);
+// console.log("scoringFunction result: ", scoringAlgorithms[0].scoringFunction("JavaScript"));
 
-function transform() {};
+function scorerPrompt() {
+  console.log(`Which scoring algorithm would you like to use?
 
-let newPointStructure;
+0 - Simple: One point per character
+1 - Vowel Bonus: Vowels are worth 3 points
+2 - Scrabble: Uses scrabble point system`);
+  let number = Number(input.question("Enter 0, 1, or 2: "));
+  let chosenOption = scoringAlgorithms[number];
+  return chosenOption;
+}
+
+function transform(oldSystem) {
+  let singleLetterPoints = {};
+  for (let points in oldSystem) {
+      let letters = oldSystem[points];
+      for (let i=0; i<letters.length; i++){
+        singleLetterPoints[letters[i].toLowerCase()] = Number(points);
+      }         
+  }
+  return singleLetterPoints;
+};
+
+let newPointStructure = transform(oldPointStructure);
+scoringAlgorithms[2].scoringFunction = scrabbleScore;
 
 function runProgram() {
-   initialPrompt();
-   
+  // console.log(newPointStructure);
+   let userWord = initialPrompt();
+  //  console.log(userWord);
+  //  console.log(typeof userWord);
+  let option = scorerPrompt();
+  //  console.log(option);
+  //  console.log(typeof option);
+  let points;
+  if(option.name === "Scrabble") {
+    points = option.scoringFunction(userWord, newPointStructure);
+  } else {
+    points = option.scoringFunction(userWord);
+  }
+  //  console.log(points);
+  //  console.log(typeof points);
+   console.log(`Score for '${userWord}': ${points}`);  
 }
 
 // Don't write any code below this line //
@@ -69,4 +141,3 @@ module.exports = {
 	runProgram: runProgram,
 	scorerPrompt: scorerPrompt
 };
-
